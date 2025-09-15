@@ -20,7 +20,7 @@ async function query(queryObject) {
 
 async function getNewClient() {
   const client = new pg.Client({
-    host: "localhost",
+    host: "postgres-db",
     port: "5432",
     user: "root",
     database: "nodedb",
