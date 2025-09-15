@@ -1,4 +1,4 @@
-FROM bitnami/nginx:latest
+FROM nginx:latest
 
 COPY nginx.conf /etc/nginx/nginx.conf
 
