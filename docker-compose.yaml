@@ -1,0 +1,32 @@
+services:
+  node_app:
+    image: pfaria/node
+    container_name: node_app
+    networks:
+      - server-custom
+    ports:
+      - "3000:3000"
+
+  postgres-db:
+    container_name: postgres-db
+    image: "bitnami/postgresql:16.6.0"
+    environment:
+      - DB_HOST=postgres-db
+      - POSTGRESQL_DATABASE=nodedb
+      - POSTGRESQL_PASSWORD=root
+      - POSTGRESQL_USERNAME=root
+      - POSTGRESQL_PORT_NUMBER=5432
+    ports:
+      - 5432:5432
+    volumes:
+      - datapg:/data/postgres
+    networks:
+      - server-custom
+
+networks:
+  server-custom:
+    driver: bridge
+
+volumes:
+  datapg:
+    driver: local
