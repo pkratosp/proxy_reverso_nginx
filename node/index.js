@@ -1,46 +1,26 @@
 const express = require("express");
-const pg = require("pg");
 const faker = require("@faker-js/faker");
 const app = express();
 const port = 3000;
+const mysql = require("mysql");
+const util = require("util");
 
-async function query(queryObject) {
-  let client;
-  try {
-    client = await getNewClient();
-    const result = await client.query(queryObject);
-    return result;
-  } catch (error) {
-    console.error(error);
-    throw error;
-  } finally {
-    await client.end();
-  }
-}
+const connection = mysql.createConnection({
+  host: "mysql-db",
+  user: "root",
+  password: "root",
+  database: "nodedb",
+  port: 3306,
+});
 
-async function getNewClient() {
-  const client = new pg.Client({
-    host: "postgres-db",
-    port: "5432",
-    user: "root",
-    database: "nodedb",
-    password: "root",
-    ssl: false,
-  });
-  await client.connect();
-  return client;
-}
+const query = util.promisify(connection.query).bind(connection);
 
 app.get("/", async (req, res) => {
   const testeTable = await query(
-    `select * from pg_tables where tablename like 'people'`
+    "SELECT COUNT(*) AS count FROM information_schema.tables WHERE table_schema = 'nodedb' AND table_name = 'people'"
   );
 
-  if (testeTable.rows.length == 1) {
-    const randomName = faker.faker.person.fullName();
-
-    await query(`INSERT INTO people (name) VALUES ('${randomName}')`);
-  } else {
+  if (testeTable[0].count === 0) {
     await query(`
       CREATE TABLE people (
         name VARCHAR(255)
@@ -48,13 +28,15 @@ app.get("/", async (req, res) => {
     `);
   }
 
+  const randomName = faker.faker.person.fullName();
+  await query(`INSERT INTO people (name) VALUES ('${randomName}')`);
+
   res.send("<h1>Full Cycle Rocks!</h1>");
 });
 
 app.get("/list", async (req, res) => {
   const listNames = await query("SELECT * FROM people");
-
-  res.send(listNames.rows);
+  res.send(listNames);
 });
 
 app.listen(port, () => {

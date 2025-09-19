@@ -19,21 +19,20 @@ services:
     ports:
       - "3000:3000"
     depends_on:
-      - postgres-db
+      - mysql-db
 
-  postgres-db:
-    container_name: postgres-db
-    image: "bitnami/postgresql:16.6.0"
+  mysql-db:
+    container_name: mysql-db
+    image: "mysql:5.7"
     environment:
-      - DB_HOST=postgres-db
-      - POSTGRESQL_DATABASE=nodedb
-      - POSTGRESQL_PASSWORD=root
-      - POSTGRESQL_USERNAME=root
-      - POSTGRESQL_PORT_NUMBER=5432
+      - MYSQL_MASTER_HOST=mysql-db
+      - MYSQL_DATABASE=nodedb
+      - MYSQL_PASSWORD=root
+      - MYSQL_ROOT_PASSWORD=root
     ports:
-      - 5432:5432
+      - 3306:3306
     volumes:
-      - datapg:/data/postgres
+      - datamysql:/data/mysql
     networks:
       - server-custom
 
@@ -42,5 +41,5 @@ networks:
     driver: bridge
 
 volumes:
-  datapg:
+  datamysql:
     driver: local
